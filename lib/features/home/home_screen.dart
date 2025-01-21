@@ -10,25 +10,34 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String finalResult = "0";
+  String displayResult = "0";
   String result = "0";
   double num1 = 0;
   double num2 = 0;
   String op = "";
+  bool isOperatorPressed = false;
+  Color containerColor = Colors.yellow.shade800;
 
   void operationFun(String text1) {
     if (text1 == "C") {
       finalResult = "0";
+      displayResult="0";
       result = "0";
       num1 = 0;
       num2 = 0;
       op = "";
+      isOperatorPressed = true;
     } else if (text1 == "+" || text1 == "-" || text1 == "÷" || text1 == "×") {
       num1 = double.parse(finalResult);
       op = text1;
-      result = "";
+      displayResult = finalResult + text1;
+      finalResult = "";
+       containerColor = Colors.white;
+      isOperatorPressed = true;
     } else if (text1 == ".") {
       if (!finalResult.contains(".")) {
-        finalResult = finalResult + text1;
+        result = result + text1;
+        displayResult=finalResult;
       }
     } else if (text1 == "=") {
       if (result.isNotEmpty) {
@@ -42,12 +51,18 @@ class _HomeScreenState extends State<HomeScreen> {
         } else if (op == "×") {
           finalResult = (num1 * num2).toString();
         }
+        if (finalResult.endsWith(".0")) {
+          finalResult = finalResult.substring(0, finalResult.length - 2);
+        }
+        displayResult=finalResult;
         result = finalResult;
+        op="";
+        isOperatorPressed = false;
       }
     } else if (text1 == "%") {
       if (result.isNotEmpty) {
         num2 = double.parse(result);
-        finalResult = (num2 / 100).toString();
+        result = (num2 / 100).toString();
       }
     } else if (text1 == "+/-") {
       if (result.contains("-")) {
@@ -57,15 +72,23 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       finalResult = result;
     } else {
-      if (finalResult == "0") {
-        finalResult = text1;
+      if (isOperatorPressed) {
+        result = text1;
+        isOperatorPressed = false;
       } else {
-        finalResult = finalResult + text1;
+        if (finalResult == "0") {
+          result = text1;
+        } else {
+          result = result + text1;
+        }
       }
-      result = finalResult;
+      finalResult = result;
+      displayResult=finalResult;
     }
     setState(() {
-      result = finalResult;
+      finalResult = result;
+      displayResult=finalResult;
+      containerColor=Colors.yellow.shade800;
     });
   }
 
@@ -87,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  finalResult,
+                  finalResult.toString(),
                   style: const TextStyle(
                       color: Colors.white,
                       fontSize: 80,
@@ -124,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 CustomContainer(
                   text: "÷",
-                  conColor: Colors.yellow.shade800,
+                  conColor: containerColor,
                   textColor: Colors.white,
                   onPressed: () {
                     operationFun("÷");
